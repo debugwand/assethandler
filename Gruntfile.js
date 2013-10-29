@@ -19,10 +19,11 @@ module.exports = function(grunt) {
         cssHashFormat: '.{{hash}}.min.css',
         jsHashFormat: '.{{hash}}.min.js',
         sass: {
+            options: {
+                banner: '/* THIS IS A COMPILED FILE. DO NOT EDIT DIRECTLY. USE THE SCSS FILES IN '  + folders.css.src.toUpperCase() + ' */'
+            },
             dist: {
-                options: {
-                    //banner: '/* THIS IS A COMPILED FILE. DO NOT EDIT DIRECTLY. USE THE SCSS FILES IN */'// + folders.css.src.toUpperCase() + ' */'
-                },
+        
                 files: [{
                     expand: true,
                     cwd: folders.css.src,
@@ -32,7 +33,7 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        csslint: {
+        csslint: { //test css that has been produced by sass
             strict: {
                 options: {
                     import: 2
@@ -46,22 +47,22 @@ module.exports = function(grunt) {
                 src: [folders.css.src + '/**/*.css']
             }
         },
-        cssmin: {
+        cssmin: {  //export minified css
             minify: {
             expand: true,
             cwd: folders.css.src,
             src: ['*.css', '!*.min.css'],
-            dest: folders.css.dest,
+            dest: folders.css.src,
             ext: '.min.css'
           }
         },
         styleguide: { //undecided. lots of overhead, adding html fixtures in comments.
             options: {
-              name: "Generated styleguide"
+              name: 'Generated styleguide'
             },
             dist: {
                 files: {
-                    'docs/css': folders.css.src + "/*.scss"
+                    'docs/css': folders.css.src + '/*.scss'
                 }
             }
         },
@@ -84,17 +85,17 @@ module.exports = function(grunt) {
                     'helpers': folders.spec.src + '/*Helper.js'
                 }
             },
-            coverage: {
+            coverage: {  //'istanbul' coverage, non-failing
                 src: folders.js.src + '/**/*.js',
                 options: {
                     'specs': folders.spec.src + '/*Spec.js',
                     'helpers': folders.spec.src + '/*Helper.js',
                     'template': require('grunt-template-jasmine-istanbul'),
                     'templateOptions': {
-                        'coverage': folders.js.coverage  + '/coverage.json',
+                        'coverage': folders.spec.coverage  + '/coverage.json',
                         'report': [
-                            {'type': 'html', options: {dir: folders.js.coverage}},
-                            {'type': 'cobertura', options: {dir: folders.js.coverage + '/cobertura'}},
+                            {'type': 'html', options: {dir: folders.spec.coverage}},
+                            {'type': 'cobertura', options: {dir: folders.spec.coverage + '/cobertura'}},
                             {'type': 'text-summary'}
                         ],
                         'thresholds': { //dont' force fail on lack of coverage
@@ -107,12 +108,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        uglify: { //minify and concat
-            options:{
-                mangle: {
-                    except: ['vendor/**/*.js']
-                }
-            },
+        uglify: { //minify and concat js
             target: {
                 files: (function () { //result in [public/folder/filename.min.js = {srcfiles/file.js, /srcfiles/file2.js}] etc
                     var obj = {};
@@ -138,8 +134,8 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        copy: { //for pngs
-            pngs: {
+        copy: { 
+            pngs: { //for pngs
                 files: [
                     {
                         'expand': true,
@@ -150,7 +146,7 @@ module.exports = function(grunt) {
                     }
                 ]
             },
-            js : {
+            js : { //for js in dev mode
                 files: [{
                     expand: true,
                     cwd: folders.js.src,
@@ -159,10 +155,10 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        favicons: {
+        favicons: { //favico and all the mobile variants
             options: {
                 html: folders.img.out + '/icons.html',
-                HTMLPrefix: folders.img.icons.dest.replace(folders.output_redirect_path[0] + "/", folders.output_redirect_path[1]) + "/"
+                HTMLPrefix: folders.img.icons.dest.replace(folders.output_redirect_path[0] + '/', folders.output_redirect_path[1]) + '/'
             },
             icons: {
                 src: folders.img.icons.src,
@@ -173,7 +169,7 @@ module.exports = function(grunt) {
         watch: {
             css: {
                 files: folders.css.src + '/**/*.scss',
-                tasks: ['sass', 'csslint']
+                tasks: ['clean:on_sass', 'sass', 'csslint', 'cssmin', 'hashify:css', 'writeconfig:css' ]
             },
             images: {
                 files: folders.img.src + '/**/*.*',
@@ -195,11 +191,11 @@ module.exports = function(grunt) {
             },
             js: {
                 files: [folders.js.src + '/**/*.js', folders.spec.src + '/**/*.js'],
-                tasks: ['jshint', 'jasmine:testdev']
+                tasks: ['jshint', 'jasmine:testdev', 'copy:js', 'jasmine:coverage', 'writeconfig:js']
             },
             jsmanifest: {
                 files: [folders.js.src + '/jsmanifest.json'],
-                tasks: ['writeconfig']
+                tasks: ['clean:on_manifest', 'writeconfig:js']
             }
         },
         //versioning via hashes of md5 content
@@ -212,10 +208,10 @@ module.exports = function(grunt) {
                
                 files: [{
                     expand: true,
-                    cwd: folders.css.dest,
-                    src: "**/*.min.css",
+                    cwd: folders.css.src,
+                    src: '**/*.min.css',
                     dest: folders.css.dest,
-                    ext: "<%= cssHashFormat %>"
+                    ext: '<%= cssHashFormat %>'
                     
                 }]
             },
@@ -228,14 +224,14 @@ module.exports = function(grunt) {
                 files: [{
                     expand: true,
                     cwd: folders.js.dest,
-                    src: "**/*.min.js",
+                    src: '**/*.min.js',
                     dest: folders.js.dest,
-                    ext: "<%= jsHashFormat %>"
+                    ext: '<%= jsHashFormat %>'
                     
                 }]
             }
         },
-        writeconfig: {
+        writeconfig: { //create include files for js and css in different environments
             css: {
                 options: {
                     hashifyMap: folders.css.out + '/hashmap.json',
@@ -249,27 +245,29 @@ module.exports = function(grunt) {
                     manifest: jsMap,
                     dest: folders.js.out,
                     src: folders.js.src,
-                    public: folders.js.dest.replace(folders.output_redirect_path[0] + '/', folders.output_redirect_path[1]),//todo: names get confusing
+                    public: folders.js.dest.replace(folders.output_redirect_path[0] + '/', folders.output_redirect_path[1]),
                     template: '<script src="{{file}}"></script>',
                     hashtemplate: folders.js.dest.replace(folders.output_redirect_path[0] + '/', folders.output_redirect_path[1]) + '/{{file}}<%= jsHashFormat %>'
                 }
             }
         },
-        clean: {
-            on_min: [folders.js.dest + "/**/*.js", folders.css.dest + "/**/*.css"],
-            on_img: [folders.img.dest]
+        clean: { //delete contents of given folders to work with a clean set
+            on_min: [folders.js.dest + '/**/*.js', folders.css.dest + '/**/*.css'],
+            on_img: [folders.img.dest],
+            on_manifest: [folders.js.out + '/*.{dev,prod}'],
+            on_sass: [folders.css.src + '/*.css', folders.css.out]
         },
-        notify: {
+        notify: { //throw alerts in addition to failures
             dev: {
                 options: {
-                    title: "COMPLETE",
-                    message: "Ready to work"
+                    title: 'COMPLETE',
+                    message: 'Ready to work'
                 }
             },
             build: {
                 options: {
-                    title: "BUILD COMPLETE",
-                    message: "End of build process"
+                    title: 'BUILD COMPLETE',
+                    message: 'End of build process'
                 }
             }
         }
@@ -281,7 +279,7 @@ module.exports = function(grunt) {
     grunt.loadTasks('tasks');
     
    //setup tasks
-    grunt.registerTask('default', ['setup', 'cssmin', 'hashify:css', 'writeconfig:css', 'copy:js', 'writeconfig:js', 'lint', 'watch', 'notify:dev']);//use this when developing to autoupdate css and images
+    grunt.registerTask('default', ['setup', 'cssmin', 'hashify:css', 'copy:js', 'writeconfig', 'lint', 'watch', 'notify:dev']);//use this when developing to autoupdate css and images
     grunt.registerTask('images', ['imagemin', 'copy:pngs']);//watched via dev task
     grunt.registerTask('lint', ['csslint', 'jshint']);//linting on assets on build and on demand
     grunt.registerTask('tests', ['lint', 'jasmine']);//unit tests
@@ -297,29 +295,22 @@ module.exports = function(grunt) {
     
     grunt.event.on('watch', function(action, filepath, target) {    
         var file;
-        if (filepath.indexOf(folders.img.src) > -1 && action === "deleted") {//specifically track image deletion
+        if (filepath.indexOf(folders.img.src) > -1 && action === 'deleted') {//specifically track image deletion
             file = filepath.replace(folders.img.src, folders.img.dest);
             if (grunt.file.exists(file)) {
                 grunt.file.delete(file);
-                grunt.log.write(file + " deleted ");
+                grunt.log.write(file + ' deleted ');
             }    
         }
     });
 };
 
-//todo: loadscreens, deployment? js docs?
+//todo: loadscreens, js docs?
 //images could be nicer. hashify src in templates, sass - usemin? only update changed? 
 //
-//TODO
-//PROBLEM: src folders aren't available to webserver
-//SOLNs: copy across non-minified to public, clean all the f'ing time
-//will have to reconsider how file mapping etc is going on.
-//1) keep source where it is but a) copy to dest and b) leave minific til build
-//there will have to be a bit more cleverness with hashify json and writeconfig
+//TODO: test throughflow
 //
-//watch: sass files all go through main.scss so added, changed or deleted handled there
-//watch: js files would have to be cleaned each time there was a deletion?
-//js watching: lint it, test it, copy it
-//
+//nb if you rename or remove a main file in sass, it does not remove the old one. it doesn't clean up the old css so that then gets popped into public,
+//and you still have the old prod and dev files as a result
 
-
+//TODO: warning file in any folder that gets CLEANED

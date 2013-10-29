@@ -2,17 +2,24 @@
 <html>
 <head>
   <title>Gruntrails</title>
-  <%= render :file => "layouts/images/icons.html" %>
-  <link href="<%= render :file => 'layouts/stylesheets/main.dev' %>" rel="stylesheet" />
-  <link href="<%= render :file => 'layouts/stylesheets/print.prod' %>" rel="stylesheet" media="print" />
+  <%
+  # demo: how this variable is set will change between frameworks. development should get .dev, test and production get .prod
+  envformat = Rails.env == "development" ? "dev" : "prod"
+  %>
+  <%= render :file => "shared/images/icons", :formats => [:html] %>
+  <%#
+    for css we use this approach so that features such as media can be specified inline
+  %>
+  <link href="<%= render :file => 'shared/stylesheets/main', :formats => [:"#{envformat}"] %>" rel="stylesheet" />
+  <link href="<%= render :file => 'shared/stylesheets/print', :formats => [:"#{envformat}"] %>" rel="stylesheet" media="print" />
+  <%= render :file => 'shared/javascripts/special', :formats => [:"#{envformat}"] %>
   <%= csrf_meta_tags %>
 </head>
 <body>
-
+ENV: <%= Rails.env %>
+FILEEXT: <%= envformat %>
 <%= yield %>
-
-<%= render :file => "layouts/javascripts/main.dev" %>
-<%#todo: dev or prod depending on env, but stylesheets must stay prod (or be the same thing maybe?) %>
-
+<%= render :file => 'shared/javascripts/main', :formats => [:"#{envformat}"] %>
+<img src="/images/rails.png" alt="rails" />
 </body>
 </html>

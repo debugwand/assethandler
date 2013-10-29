@@ -24,7 +24,7 @@ module.exports = function (grunt) {
         //write out the file
         var writeFile = function (name, out) {
             grunt.file.write(name, out);
-            grunt.log.write('File ' + name + ' created\n');
+            grunt.log.write('File ' + name.cyan + ' created\n');
         };
         //build the production file based on the hashifymap
         var buildProdFile = function (hMap) {
@@ -47,7 +47,7 @@ module.exports = function (grunt) {
         var buildDevFile = function (manifest) {
             var outname;
             var contents;
-            _.each(manifest, function (val, key) { //3 nested loops = doing it wrong
+            _.each(manifest, function (val, key) { //3 nested loops, consider better way
                 outname = outFileName(key, 'dev');
                 
                 contents = val.map(function (val) {
@@ -63,19 +63,21 @@ module.exports = function (grunt) {
             });
         };
 
-//TODO: tidy this up, messy.
-        //create symlinks for convenience when there is no manifest for a dev version (e.g. sass -> css)
+        //create symlinks for integration convenience when there is no manifest for a dev version (e.g. css)
         var buildSymLinks = function () {
-            var dest = grunt.file.expand(options.dest + "/*.prod");
-            dest.map(function (f) {//TODO: not working well
-                //first, need to check for existence. second, need to make sure it folder is sensible
-                var prod = f.split("/");
-                prod = prod[prod.length - 1];
+            var dest = grunt.file.expand(options.dest + "/*.prod"); //get all production files
+            dest.map(function (f) {
+                var state = "already exists";
                 var flink = f.replace('prod', 'dev');
-                fs.symlinkSync(prod, flink);
+                var prodFile = f.split("/");
+                prodFile = prodFile[prodFile.length - 1];
+                if (!grunt.file.exists(flink)) {
+                    fs.symlinkSync(prodFile, flink);
+                    state = "created";
+                }
+                grunt.log.write("Symlink", flink.cyan, state + "\n")
             });
         };
-
 
         if (hashifyMap) { //production files
             buildProdFile(hashifyMap);
@@ -88,5 +90,6 @@ module.exports = function (grunt) {
             //otherwise, build symlinks that map prod to dev
             buildSymLinks();
         }
+        grunt.log.ok();
     });
 };

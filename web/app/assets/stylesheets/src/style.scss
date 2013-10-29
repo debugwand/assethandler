@@ -3,6 +3,12 @@ $bg: #003368;
 body {
   color: $clr;
   background: $bg;
+  font-family: arial, helvetica, sans-serif;
+}
+p {
+  border: 1px solid white;
+  padding: 10px 5px;
+  margin: 0 0 0 5px;
 }
 /*
 #Button

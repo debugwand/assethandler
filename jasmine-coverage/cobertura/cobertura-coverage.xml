@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="19"  lines-covered="16"  line-rate="0.8421"  branches-valid="2"  branches-covered="1"  branch-rate="0.5"  timestamp="1382976140898" complexity="0" version="0.1">
+<coverage lines-valid="19"  lines-covered="16"  line-rate="0.8421"  branches-valid="2"  branches-covered="1"  branch-rate="0.5"  timestamp="1383068009805" complexity="0" version="0.1">
 <sources>
-	<source>/Users/d.budge/Sites/devbox/gruntrails</source>
+	<source>/Users/d.budge/Sites/devbox/assethandler</source>
 </sources>
 <packages>
 	<package name="javascripts"  line-rate="0.8462000000000001"  branch-rate="1" >
@@ -51,6 +51,12 @@
 	</package>
 	<package name="javascripts.subfolder"  line-rate="1"  branch-rate="1" >
 	<classes>
+		<class name="sub5.js"  filename="web/app/assets/javascripts/subfolder/sub5.js"  line-rate="1"  branch-rate="1" >
+		<methods>
+		</methods>
+		<lines>
+		</lines>
+		</class>
 		<class name="subfile.js"  filename="web/app/assets/javascripts/subfolder/subfile.js"  line-rate="1"  branch-rate="1" >
 		<methods>
 		</methods>

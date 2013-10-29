@@ -1,6 +1,13 @@
+/* THIS IS A COMPILED FILE. DO NOT EDIT DIRECTLY. USE THE SCSS FILES IN WEB/APP/ASSETS/STYLESHEETS */
 body {
   color: #ff9900;
-  background: #003368; }
+  background: #003368;
+  font-family: arial, helvetica, sans-serif; }
+
+p {
+  border: 1px solid white;
+  padding: 10px 5px;
+  margin: 0 0 0 5px; }
 
 /*
 #Button

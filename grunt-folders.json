@@ -3,24 +3,24 @@
     "js": {
       "src": "web/app/assets/javascripts",
       "dest": "web/public/js",
-      "out": "web/app/views/layouts/javascripts",
-      "coverage": "jasmine-coverage"
+      "out": "web/app/views/shared/javascripts"
     },
     "css": {
       "src": "web/app/assets/stylesheets",
       "dest": "web/public/css",
-      "out": "web/app/views/layouts/stylesheets"
+      "out": "web/app/views/shared/stylesheets"
     },
     "img": {
       "src": "web/app/assets/images",
       "dest": "web/public/images",
-      "out": "web/app/views/layouts/images",
+      "out": "web/app/views/shared/images",
       "icons": {
         "src": "icon.png",
         "dest": "web/public/images/ico"
       }
     },
     "spec": {
-      "src": "web/test/javascript"
+      "src": "web/test/javascript",
+      "coverage": "jasmine-coverage"
     }
 }
