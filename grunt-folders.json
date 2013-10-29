@@ -1,0 +1,26 @@
+{
+    "output_redirect_path": ["web/public", "/"],
+    "js": {
+      "src": "web/app/assets/javascripts",
+      "dest": "web/public/js",
+      "out": "web/app/views/layouts/javascripts",
+      "coverage": "jasmine-coverage"
+    },
+    "css": {
+      "src": "web/app/assets/stylesheets",
+      "dest": "web/public/css",
+      "out": "web/app/views/layouts/stylesheets"
+    },
+    "img": {
+      "src": "web/app/assets/images",
+      "dest": "web/public/images",
+      "out": "web/app/views/layouts/images",
+      "icons": {
+        "src": "icon.png",
+        "dest": "web/public/images/ico"
+      }
+    },
+    "spec": {
+      "src": "web/test/javascript"
+    }
+}

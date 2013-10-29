@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gruntrails</title>
+  <%= render :file => "layouts/images/icons.html" %>
+  <link href="<%= render :file => 'layouts/stylesheets/main.dev' %>" rel="stylesheet" />
+  <link href="<%= render :file => 'layouts/stylesheets/print.prod' %>" rel="stylesheet" media="print" />
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<%= yield %>
+
+<%= render :file => "layouts/javascripts/main.dev" %>
+<%#todo: dev or prod depending on env, but stylesheets must stay prod (or be the same thing maybe?) %>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+    "main": [
+        "web/app/assets/javascripts/main.js",
+        "web/app/assets/javascripts/additional.js",
+        "web/app/assets/javascripts/subfolder/**/*.js"
+    ],
+    "special": [
+        "web/app/assets/javascripts/special.js"
+    ]
+}

@@ -1,0 +1,46 @@
+$clr: #ff9900;
+$bg: #003368;
+body {
+  color: $clr;
+  background: $bg;
+}
+/*
+#Button
+buttony buttons
+
+<button class="btn">BTN!</button>
+ */
+.btn {
+  border: 1px solid red;
+  color: $clr;
+}
+$dark_grey: #333;
+$light_grey: #ccc;
+
+@mixin greybox {
+  border: 1px solid $dark_grey;
+  background: $light_grey;
+  padding: 10px;
+}
+
+.box {
+  @include greybox;
+}
+.filter-list {
+  @extend .box;
+  li {
+    border: 1px solid $dark_grey;
+  }
+}
+/* ... more code ... */
+.pullout { /*  */
+  @extend .box;
+  margin: 5px;  
+}
+.quote {
+  font-style: italic;
+}
+
+.another {
+  color: #f00;
+}
