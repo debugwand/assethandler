@@ -3,12 +3,14 @@
 <head>
   <title>Gruntrails</title>
   <%
-  # demo: how this variable is set will change between frameworks. development should get .dev, test and production get .prod
+  # !!!! DEMO ONLY !!!!
+  # this would normally be saved in config somewhere for rails, it is set here to demonstrate the requirements.
+  # how this variable is set will vary between frameworks. development should get .dev, test and production get .prod
   envformat = Rails.env == "development" ? "dev" : "prod"
   %>
   <%= render :file => "shared/images/icons", :formats => [:html] %>
   <%#
-    for css we use this approach so that features such as media can be specified inline
+    for css, we generate only the file path so we can specify features such as media rules inline
   %>
   <link href="<%= render :file => 'shared/stylesheets/main', :formats => [:"#{envformat}"] %>" rel="stylesheet" />
   <link href="<%= render :file => 'shared/stylesheets/print', :formats => [:"#{envformat}"] %>" rel="stylesheet" media="print" />
@@ -16,9 +18,14 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
-ENV: <%= Rails.env %>
-FILEEXT: <%= envformat %>
+<p>ENV: <%= Rails.env %></p>
+<p>FILE EXT: <%= envformat %></p>
+
 <%= yield %>
+
+<%#
+  for JS, we alternate between many files in dev and 1 minified, concatenated file in test/prod.  The entire html block is generated.
+%>
 <%= render :file => 'shared/javascripts/main', :formats => [:"#{envformat}"] %>
 <img src="/images/rails.png" alt="rails" />
 </body>

@@ -13,7 +13,6 @@
     "grunt-contrib-uglify": "~0.2.4",
     "grunt-contrib-imagemin": "~0.3.0",
     "grunt-contrib-copy": "~0.4.1",
-    "grunt-autoprefixer": "~0.4.0",
     "grunt-hashify": "0.0.6",
     "load-grunt-tasks": "~0.2.0",
     "grunt-contrib-clean": "~0.5.0",
@@ -21,7 +20,7 @@
     "grunt-styleguide": "~0.2.11",
     "grunt-template-jasmine-istanbul": "~0.2.5",
     "grunt-notify": "~0.2.13",
-    "grunt-usemin": "~2.0.0",
-    "lodash": "~2.2.1"
+    "lodash": "~2.2.1",
+    "grunt-assetincludes": "git+ssh://git@github.com:nature/grunt-assetincludes.git#v0.1.0"
   }
 }

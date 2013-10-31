@@ -56,16 +56,16 @@ module.exports = function(grunt) {
             ext: '.min.css'
           }
         },
-        styleguide: { //undecided. lots of overhead, adding html fixtures in comments.
-            options: {
-              name: 'Generated styleguide'
-            },
-            dist: {
-                files: {
-                    'docs/css': folders.css.src + '/*.scss'
-                }
-            }
-        },
+        // styleguide: { //undecided. lots of overhead, adding html fixtures in comments in css files
+        //     options: {
+        //       name: 'Generated styleguide'
+        //     },
+        //     dist: {
+        //         files: {
+        //             'docs/css': folders.css.src + '/*.scss'
+        //         }
+        //     }
+        // },
         //JS
         jshint: {
             files: [folders.js.src + '/**/*.js']
@@ -169,7 +169,7 @@ module.exports = function(grunt) {
         watch: {
             css: {
                 files: folders.css.src + '/**/*.scss',
-                tasks: ['clean:on_sass', 'sass', 'csslint', 'cssmin', 'hashify:css', 'writeconfig:css' ]
+                tasks: ['clean:on_sass', 'sass', 'csslint', 'cssmin', 'hashify:css', 'assetincludes:css' ]
             },
             images: {
                 files: folders.img.src + '/**/*.*',
@@ -191,11 +191,11 @@ module.exports = function(grunt) {
             },
             js: {
                 files: [folders.js.src + '/**/*.js', folders.spec.src + '/**/*.js'],
-                tasks: ['jshint', 'jasmine:testdev', 'copy:js', 'jasmine:coverage', 'writeconfig:js']
+                tasks: ['jshint', 'jasmine:testdev', 'copy:js', 'jasmine:coverage', 'assetincludes:js']
             },
             jsmanifest: {
                 files: [folders.js.src + '/jsmanifest.json'],
-                tasks: ['clean:on_manifest', 'writeconfig:js']
+                tasks: ['clean:on_manifest', 'assetincludes:js']
             }
         },
         //versioning via hashes of md5 content
@@ -231,7 +231,7 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        writeconfig: { //create include files for js and css in different environments
+        assetincludes: { //create include files for js and css in different environments
             css: {
                 options: {
                     hashifyMap: folders.css.out + '/hashmap.json',
@@ -244,8 +244,8 @@ module.exports = function(grunt) {
                     hashifyMap: folders.js.out + '/hashmap.json',
                     manifest: jsMap,
                     dest: folders.js.out,
-                    src: folders.js.src,
-                    public: folders.js.dest.replace(folders.output_redirect_path[0] + '/', folders.output_redirect_path[1]),
+                    assetsrc: folders.js.src,
+                    siteroot: folders.js.dest.replace(folders.output_redirect_path[0] + '/', folders.output_redirect_path[1]),
                     template: '<script src="{{file}}"></script>',
                     hashtemplate: folders.js.dest.replace(folders.output_redirect_path[0] + '/', folders.output_redirect_path[1]) + '/{{file}}<%= jsHashFormat %>'
                 }
@@ -276,17 +276,17 @@ module.exports = function(grunt) {
 
     //load plugins and custom tasks
     require('load-grunt-tasks')(grunt, {pattern: ['grunt-*', '!grunt-template-*']});
-    grunt.loadTasks('tasks');
+    
     
    //setup tasks
-    grunt.registerTask('default', ['setup', 'cssmin', 'hashify:css', 'copy:js', 'writeconfig', 'lint', 'watch', 'notify:dev']);//use this when developing to autoupdate css and images
+    grunt.registerTask('default', ['setup', 'lint', 'cssmin', 'hashify:css', 'copy:js', 'assetincludes', 'watch', 'notify:dev']);//use this when developing to autoupdate css and images
     grunt.registerTask('images', ['imagemin', 'copy:pngs']);//watched via dev task
     grunt.registerTask('lint', ['csslint', 'jshint']);//linting on assets on build and on demand
     grunt.registerTask('tests', ['lint', 'jasmine']);//unit tests
     grunt.registerTask('minify', ['cssmin', 'uglify']);
     //build
     grunt.registerTask('setup', ['clean', 'sass', 'images', 'favicons']);
-    grunt.registerTask('fingerprint', ['hashify', 'writeconfig']);//make prod files and their references
+    grunt.registerTask('fingerprint', ['hashify', 'assetincludes']);//make prod files and their references
     grunt.registerTask('build', ['setup', 'minify', 'tests', 'fingerprint', 'notify:build']); //everything
 
     //this function caters for the situation in which an image file is deleted.
@@ -305,12 +305,8 @@ module.exports = function(grunt) {
     });
 };
 
+//TODO: would be nice to run jasmine and coverage in default, but it fails badly if there aren't yet any test files with 1 unit test at least. fix plugin
 //todo: loadscreens, js docs?
-//images could be nicer. hashify src in templates, sass - usemin? only update changed? 
-//
-//TODO: test throughflow
-//
-//nb if you rename or remove a main file in sass, it does not remove the old one. it doesn't clean up the old css so that then gets popped into public,
-//and you still have the old prod and dev files as a result
-
-//TODO: warning file in any folder that gets CLEANED
+//todo: better way of handling individual deletes on images
+//todo: images are not versioned, could be nicer. hashify src in templates, sass - usemin? only update changed?
+//TODO: nice-to-have warning file in any folder that gets CLEANED

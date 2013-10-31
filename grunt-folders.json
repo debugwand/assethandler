@@ -21,6 +21,6 @@
     },
     "spec": {
       "src": "web/test/javascript",
-      "coverage": "jasmine-coverage"
+      "coverage": "javascript-coverage"
     }
 }

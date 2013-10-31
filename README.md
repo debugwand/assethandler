@@ -17,18 +17,18 @@ Some tasks have non-npm dependencies.  These are:
 
 ## How it works
 
-Current asset handlers like Sprockets / Rails asset pipeline / mincer are all tightly bound to the framework they exist on (Ruby / Rails 3.1+ / Node).  These particular examples mount an environment, create a virtual file system using a load path to specify the asset folders and then provide logical paths to the files within, depending on how they were specified in the load path.  There is no way to do that without tying the application tier to the presentation tier.
+Current asset handlers like Sprockets / Rails asset pipeline / mincer are all tightly bound to the framework they exist on (Ruby / Rails 3.1+ / Node).  These particular examples mount an environment, create a virtual file system using a load path to specify the asset folders and then provide logical paths to the files within, depending on how they were specified in the load path.  There is no way to do that without making the application tier and the presentation tier co-dependent.
 
 This creates a dependence on a particular application framework, which then impacts decisions about the application that really should not be affected by the presentation tier.
 
-The asset handler uses 2 config files to allow the developer to specify the locations for the source files and their destinations, Grunt to handle file processing, and outputs simple text files that get used as includes within your site instead of directly referencing the file in the static assets directory.  For each asset include, there is a 'dev' version and a 'prod' version.
+The asset handler takes 2 config files to allow the developer to specify the locations for the source files and their destinations, Grunt to handle file processing, and outputs simple text files that get used as includes within your site instead of directly referencing the file in the static assets directory.  For each asset include, there is a 'dev' version and a 'prod' version.
 
-The asset handler has been built so that you just need to set up a grunt-folder.json file and a jsmanifest.json file, the Grunt file itself should (hopefully) not need changed.
+Per project, you just need to set up a grunt-folder.json file and a jsmanifest.json file, the Grunt file itself should (hopefully) not need changed.
 
-**Destination folders for images, CSS and JS get wiped clean when grunt is started.  Don't save files directly in your destination folders. **
+**Destination folders for images, CSS and JS get wiped clean when grunt is started.  Don't save files directly in your destination folders.**
 
 ### Configure your site
-Update grunt-folders.json with directory information for where your assets sit and where they should get output to (more help below)
+Update grunt-folders.json with directory information for where your working assets are saved, where the finalised assets are served from, and where their supplemental code (e.g. includes) gets output to(more help below)
 
 Create a jsmanifest.json file in your JavaScript asset folder (more help below)
 
@@ -44,15 +44,15 @@ Run `grunt build` for test &amp; production environment
 ### Development mode
 Running `grunt` will
 + clean out the destination folders
-+ run sass task to create css files from scss
++ run the sass task to create css files from scss
 + run images task to optimise jpegs and gifs and copy across pngs
 + run favicon task to produce the various favicon variations and create the html that should be included in the head
++ run lint tools over the source folders for CSS and JS
 + create a minified version of the CSS in the destination folder
 + add a MD5 hash fingerprint to the minified CSS files' filename for versioning
 + copy the JS files from the source location to the destination location
 + create the include files for CSS and JS locations for use in the HTML templates
-+ run lint tools over the source folders for CSS and JS
-+ watch for changes to the source folders to automatically run processing and test tasks on them when they change
++ start the watch task for changes to the source folders to automatically run processing and test tasks on them when they change
 
 ### Test / production mode
 Running `grunt build` will
@@ -61,10 +61,12 @@ Running `grunt build` will
 + run images task to optimise jpegs and gifs and copy across pngs
 + run favicon task to produce the various favicon variations and create the html that should be included in the head
 + create minified, concatenated versions of CSS and JS files in the destination folder
-+ run lint tools and unit test tools over the CSS and JS
++ run lint tools over the source folders for CSS and JS, run unit tests over JS and produce a coverage report
 + add a MD5 hash fingerprint to the minified CSS files' and JS files' filename for versioning
 + create the include files for CSS and JS locations for inclusion in the HTML templates
 
+### Discrete tasks
+Use the command `grunt --help` to see a full list of all the available tasks.  
 
 ###Notes
 CSS concatenation is handled by SASS.  CSS minification is handled by CSSMin.  This occurs in both development and test/production environments.
@@ -94,21 +96,22 @@ This file is where you specify where your assets' sources are (src), where they 
 
 **Paths are relative to the location of Gruntfile.js**
 
+**Your src, dest and out folders must not be in the same place.  Destination and output get cleaned at certain points to ensure that they don't fill up with deleted or renamed files**
+
 This example shows a Ruby on Rails site setup.
 
 **Your src, dest and out locations do not have to match the locations below, it is an example.**
 
-**Your src, dest and out folders must not be in the same place.  Destination and output get cleaned at certain points to ensure that they don't fill up with deleted or renamed files **
-
-In this example the rails site is in a web/ subfolder, with static assets in public being routed to root.
+In this example the rails site is in a web/ subfolder.
 * Source files are saved in app/assets/
 * Files that get used in the site are output to public/
+* Assets in public/ are served from root on the site
 * Test files are saved in test/javascript
-* Coverage output sits at the same level as the grunt file in jasmine-coverage
+* Coverage output sits at the same level as the grunt file in javascript-coverage
 * Supplementary files are saved to views/shared/
 * For CSS and JS, the supplementary files are the production and development includes
 * For images, the supplementary file is the HTML produced by favicon that should be output in the `<head>`
-* The favicon source is at the same level as the grunt file and the various files it produces are output to an ico subdirectory of images
+* The favicon source file `icon.png` is at the same level as the grunt file and the various files it produces are output to an ico subdirectory of images
 
 
 ````javascript
@@ -135,7 +138,7 @@ In this example the rails site is in a web/ subfolder, with static assets in pub
     },
     "spec": {
       "src": "web/test/javascript",
-      "coverage": "jasmine-coverage"
+      "coverage": "javascript-coverage"
     }
 }
 
@@ -145,7 +148,7 @@ In this example the rails site is in a web/ subfolder, with static assets in pub
 
 This file specifies how you want to organise your JS files.
 
-It is used by uglify to concatenate the right files into the right individual minified files.  It is passed through to writeconfig to create the dev includes properly.
+It is used by uglify to concatenate the right files into the right individual minified files.  It is passed through to grunt-assetincludes to create the dev includes properly.
 
 Globbing allows you to specify a folder and subfolders.
 
@@ -194,12 +197,14 @@ Output web/app/views/layouts/javascripts/special.prod
 For integration with your HTML templates, you need to set up a variable based on the environment that outputs 'dev' for development environment and 'prod' for test and production.  This will be used to pull in the correct include.
 
 **Rails example**
-````ruby
-in settings
- <%
-  envformat = Rails.env == "development" ? "dev" : "prod"
-  %>
 
+settings
+````ruby
+<%
+  envformat = Rails.env == "development" ? "dev" : "prod"
+%>
+````
 in application.html.erb
+````html
   <%= render :file => 'layouts/javascripts/main', :formats => [:"#{envformat}"] %>
 ````
