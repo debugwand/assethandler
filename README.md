@@ -27,14 +27,14 @@ Per project, you just need to set up a grunt-folder.json file and a jsmanifest.j
 
 **Destination folders for images, CSS and JS get wiped clean when grunt is started.  Don't save files directly in your destination folders.**
 
-### Configure your site
+## Install
 Update grunt-folders.json with directory information for where your working assets are saved, where the finalised assets are served from, and where their supplemental code (e.g. includes) gets output to(more help below)
 
 Create a jsmanifest.json file in your JavaScript asset folder (more help below)
 
 Set up your html templates to pull in the generated includes dependent on environment (more help below)
 
-Run `npm install`
+Run `npm install`. Don't worry, you only have to do this once.
 
 Run `grunt` for development environment
 

@@ -18,15 +18,28 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
-<p>ENV: <%= Rails.env %></p>
-<p>FILE EXT: <%= envformat %></p>
-
-<%= yield %>
-
+  <h1>Demo</h1>
+  <h2>Rails env</h2>
+  <p><%= Rails.env %></p>
+  <h2>File extension</h2>
+  <p><%= envformat %></p>
+  <%= yield %>
+  <h2>Check image gets updated</h2>
+  <img src="/images/rails.png" alt="rails" />
+  <h2>Script block</h2>
+  <%
+    jsfoo = render :file => 'shared/javascripts/main', :formats => [:"#{envformat}"] 
+    cssfoo = render :file => 'shared/stylesheets/main', :formats => [:"#{envformat}"]
+    iconsfoo = render :file => "shared/images/icons", :formats => [:html]
+  %>
+  <%= jsfoo.to_str %>
+  <h2>CSS output</h2>
+  <%= cssfoo.to_str %>
+  <h2>Icons</h2>
+  <%= iconsfoo.to_str %>
 <%#
   for JS, we alternate between many files in dev and 1 minified, concatenated file in test/prod.  The entire html block is generated.
 %>
 <%= render :file => 'shared/javascripts/main', :formats => [:"#{envformat}"] %>
-<img src="/images/rails.png" alt="rails" />
 </body>
 </html>
