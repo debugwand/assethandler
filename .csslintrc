@@ -1,0 +1,12 @@
+{
+  "shorthand": 2,
+  "vendor-prefix": 2,
+  "compatible-vendor-prefixes": 2,
+  "known-properties": 2,
+  "import": 2,
+  "empty-rules": 2,
+  "fallback-colors": 2,
+  "zero-units": 2,
+  "gradients": 2,
+  "important": 1
+}

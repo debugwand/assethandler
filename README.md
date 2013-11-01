@@ -11,7 +11,7 @@ You need [Grunt `~0.4.0`](http://gruntjs.com/), which itself needs node and npm.
 Some tasks have non-npm dependencies.  These are:
  * PhantomJS for Jasmine tests (`brew install phantomjs`)
  * ImageMagick for favicon creation (`brew install imagemagick`)
- * Ruby for SASS (there is an npm module for sass, but it isn't as good)
+ * Ruby and [SASS](http://sass-lang.com/install) (sass, not sass-rails) (there is an npm module for sass, but it isn't as good)
  * Optionally: Growl, Notification Centre, Snarl or Notify-Send for noisy warnings when a task fails.
 
 

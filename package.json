@@ -22,5 +22,8 @@
     "grunt-notify": "~0.2.13",
     "lodash": "~2.2.1",
     "grunt-assetincludes": "git+ssh://git@github.com:nature/grunt-assetincludes.git#v0.1.0"
+  },
+  "dependencies": {
+    "time-grunt": "~0.1.2"
   }
 }

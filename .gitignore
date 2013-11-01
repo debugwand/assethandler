@@ -6,4 +6,5 @@ npm-debug.log
 /tmp
 .DS_Store
 .yardoc
-
+.css
+javascript-coverage

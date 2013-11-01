@@ -13,7 +13,7 @@
 module.exports = function(grunt) {
     var folders = grunt.file.readJSON('grunt-folders.json');
     var jsMap = grunt.file.readJSON(folders.js.src + '/jsmanifest.json');
-
+    require('time-grunt')(grunt);
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         cssHashFormat: '.{{hash}}.min.css',
@@ -34,6 +34,9 @@ module.exports = function(grunt) {
             }
         },
         csslint: { //test css that has been produced by sass
+            options: {
+                csslintrc: '.csslintrc'
+            },
             strict: {
                 options: {
                     import: 2
@@ -75,14 +78,16 @@ module.exports = function(grunt) {
                 src: folders.js.src + '/**/*.js',
                 options: {
                     'specs': folders.spec.src + '/*Spec.js',
-                    'helpers': folders.spec.src + '/*Helper.js'
+                    'helpers': folders.spec.src + '/*Helper.js',
+                    'ignoreEmpty': true
                 }
             },
             testprod: {
                 src: folders.js.dest + '/**/*.js',
                 options: {
                     'specs': folders.spec.src + '/*Spec.js',
-                    'helpers': folders.spec.src + '/*Helper.js'
+                    'helpers': folders.spec.src + '/*Helper.js',
+                    'ignoreEmpty': true
                 }
             },
             coverage: {  //'istanbul' coverage, non-failing
@@ -191,7 +196,7 @@ module.exports = function(grunt) {
             },
             js: {
                 files: [folders.js.src + '/**/*.js', folders.spec.src + '/**/*.js'],
-                tasks: ['jshint', 'jasmine:testdev', 'copy:js', 'jasmine:coverage', 'assetincludes:js']
+                tasks: ['jshint', 'jasmine:testdev', 'copy:js', 'jasminecoverage', 'assetincludes:js']
             },
             jsmanifest: {
                 files: [folders.js.src + '/jsmanifest.json'],
@@ -281,8 +286,17 @@ module.exports = function(grunt) {
    //setup tasks
     grunt.registerTask('default', ['setup', 'lint', 'cssmin', 'hashify:css', 'copy:js', 'assetincludes', 'watch', 'notify:dev']);//use this when developing to autoupdate css and images
     grunt.registerTask('images', ['imagemin', 'copy:pngs']);//watched via dev task
+    //testing
+    
+    //jasmine coverage fails catastrophically if there are no js files present, so check for files
+    grunt.registerTask('jasminecoverage', function () {
+        if (grunt.file.expand(folders.js.src + "/**/*.js").length > 0) {
+            grunt.task.run("jasmine:coverage")       
+        }     
+    });
+    grunt.registerTask('jasminetests', ['jasmine:testdev', 'jasmine:testprod'])
     grunt.registerTask('lint', ['csslint', 'jshint']);//linting on assets on build and on demand
-    grunt.registerTask('tests', ['lint', 'jasmine']);//unit tests
+    grunt.registerTask('tests', ['lint', 'jasminetests', 'jasminecoverage']);//unit tests
     grunt.registerTask('minify', ['cssmin', 'uglify']);
     //build
     grunt.registerTask('setup', ['clean', 'sass', 'images', 'favicons']);
@@ -305,8 +319,11 @@ module.exports = function(grunt) {
     });
 };
 
-//TODO: would be nice to run jasmine and coverage in default, but it fails badly if there aren't yet any test files with 1 unit test at least. fix plugin
+//TODO: awaiting feedback on pull req for jasmine update
+
+//
 //todo: loadscreens, js docs?
 //todo: better way of handling individual deletes on images
 //todo: images are not versioned, could be nicer. hashify src in templates, sass - usemin? only update changed?
 //TODO: nice-to-have warning file in any folder that gets CLEANED
+//TODO: can we check for an install non-node dependencies?
